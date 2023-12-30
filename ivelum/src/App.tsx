@@ -1,25 +1,51 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import logo from './logo.svg';
 import './styles/App.scss';
-import {useQuery} from "@apollo/client";
-import {REPO_FILE, REPO_QUERY, TEST_QUERY} from "./graphql/queries/repo";
+import Typed from 'typed.js';
+import UserInfo from './components/user-info';
+import Folders from './components/folders';
+import { Link, Route, Routes } from 'react-router-dom';
+import Folder from './components/folder';
+import File from './components/file';
+import Snowfall from 'react-snowfall';
 
 function App() {
-  const { loading, error, data } = useQuery(TEST_QUERY);
-  const { data: data2 } = useQuery(REPO_QUERY);
-  const { data: data3 } = useQuery(REPO_FILE);
+  const el = useRef(null);
 
-  console.warn(data);
-  console.warn(data2);
-  console.warn(data3, 'data3');
+  useEffect(() => {
+    const typed = new Typed(el.current, {
+      strings: ['Cool Github explorer'],
+      typeSpeed: 50,
+      showCursor: false,
+    });
+
+    return () => {
+      typed.destroy();
+    };
+  }, []);
+
   return (
     <div className="App">
-      <header className="App__enter">
-        <img src={logo} className="App-logo" alt="logo" />
-        <div className="App__enter-text">
-          Cool&nbsp;<code>Github</code>&nbsp;explorer
+      <Snowfall />
+      <header className="App__header">
+        <Link to="/">
+          <div className="App__enter">
+            <img src={logo} className="App__logo" alt="logo" />
+            <div className="App__enter-text" ref={el}></div>
+          </div>
+        </Link>
+
+        <div className="App__user">
+          <UserInfo />
         </div>
       </header>
+      <div className="App__folders">
+        <Routes>
+          <Route path="/" element={<Folders />} />
+          <Route path="/:repoName/folder/*" element={<Folder />} />
+          <Route path="/:repoName/file/*" element={<File />} />
+        </Routes>
+      </div>
     </div>
   );
 }
