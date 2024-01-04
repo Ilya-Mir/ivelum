@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { REPO_MAIN_BRANCH, REPOS_FILES } from '../../graphql/queries/repo';
-import { useLazyQuery, useQuery } from '@apollo/client';
-import { USER_QUERY } from '../../graphql/queries/user';
+import { useLazyQuery } from '@apollo/client';
 import { Link, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFile, faFolder } from '@fortawesome/free-solid-svg-icons';
@@ -13,20 +12,17 @@ import './folder.scss';
 import BackButton from '../back-button';
 
 const Folder: React.FC = () => {
-  const { repoName, '*': restOfPath } = useParams();
-  const { data: userData, loading: userLoading } = useQuery(USER_QUERY);
+  const { repoName, userName, '*': restOfPath } = useParams();
 
   const [defaultBranchName, setDefaultBranchName] = useState('master');
   const [loadBranch, { data: branchData, loading: mainBranchLoading }] =
     useLazyQuery(REPO_MAIN_BRANCH);
 
   useEffect(() => {
-    if (!userLoading) {
-      loadBranch({
-        variables: { name: repoName, owner: userData?.viewer.login },
-      });
-    }
-  }, [userLoading, loadBranch, repoName, restOfPath]);
+    loadBranch({
+      variables: { name: repoName, owner: userName },
+    });
+  }, [loadBranch, repoName, restOfPath]);
 
   useEffect(() => {
     if (branchData?.repository?.defaultBranchRef?.name) {
@@ -37,7 +33,7 @@ const Folder: React.FC = () => {
   const [loadRepos, { called, error, loading: reposLoading, data: reposData }] =
     useLazyQuery(REPOS_FILES, {
       variables: {
-        owner: userData?.viewer.login,
+        owner: userName,
         name: repoName,
         expression: `${defaultBranchName}:${
           restOfPath ? restOfPath + '/' : ''
@@ -46,12 +42,12 @@ const Folder: React.FC = () => {
     });
 
   useEffect(() => {
-    if (!userLoading && defaultBranchName && !mainBranchLoading) {
+    if (defaultBranchName && !mainBranchLoading) {
       loadRepos();
     }
-  }, [userLoading, loadRepos, restOfPath, defaultBranchName]);
+  }, [loadRepos, restOfPath, defaultBranchName]);
 
-  if (userLoading || (called && reposLoading) || mainBranchLoading) {
+  if ((called && reposLoading) || mainBranchLoading) {
     return (
       <div className="common__statements-wrapper">
         <ReactLoading type={'bubbles'} color={'#12C413'} />
@@ -86,7 +82,9 @@ const Folder: React.FC = () => {
           return (
             <Link
               className="folder__file"
-              to={`/${repoName}/${isFolder ? 'folder' : 'file'}/${path}`}
+              to={`/${userName}/${repoName}/${
+                isFolder ? 'folder' : 'file'
+              }/${path}`}
               key={name}
             >
               <FontAwesomeIcon icon={isFolder ? faFolder : faFile} />

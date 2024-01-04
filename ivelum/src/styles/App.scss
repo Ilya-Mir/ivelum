@@ -21,7 +21,7 @@
         animation: enterTextMove 1s forwards;
         animation-delay: 3s;
         position: absolute;
-        top: 25%;
+        top: 10%;
         left: 50%;
         transform: translate(-50%, -50%);
         display: flex;
@@ -42,12 +42,8 @@
     }
 
     &__folders {
-        position: relative;
-        width: 960px;
-        margin: 0 auto;
         min-height: 40vh;
         background-color: rgba($color-secondary-text, .2);
-        overflow: hidden;
         animation: createBox .25s;
         padding: 40px 40px 40px 40px;
     }
@@ -57,6 +53,12 @@
         width: 150px;
         pointer-events: none;
         animation: App-logo-spin infinite 20s linear;
+    }
+
+    &__wrapper {
+        position: relative;
+        width: 960px;
+        margin: 0 auto;
     }
 }
 
@@ -74,7 +76,7 @@
 
 
 .App-link {
-    color: #61dafb;
+    color: $color-highlight;
 }
 
 @keyframes App-logo-spin {
@@ -88,7 +90,7 @@
 
 @keyframes enterTextMove {
     0% {
-        top: 25%;
+        top: 10%;
         left: 50%;
         transform: translate(-50%, -50%) scale(1);
     }

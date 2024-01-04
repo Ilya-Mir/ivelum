@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { REPO_FILE, REPO_MAIN_BRANCH } from '../../graphql/queries/repo';
-import { useLazyQuery, useQuery } from '@apollo/client';
-import { USER_QUERY } from '../../graphql/queries/user';
+import { useLazyQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import ReactLoading from 'react-loading';
 import { Highlight, themes } from 'prism-react-renderer';
@@ -10,8 +9,7 @@ import BackButton from '../back-button';
 import './file.scss';
 
 const File: React.FC = () => {
-  const { data: userData, loading: userLoading } = useQuery(USER_QUERY);
-  const { repoName, '*': filePath } = useParams();
+  const { repoName, userName, '*': filePath } = useParams();
   const [defaultBranchName, setDefaultBranchName] = useState('master');
   const [loadBranch, { data: branchData, loading: mainBranchLoading }] =
     useLazyQuery(REPO_MAIN_BRANCH);
@@ -20,12 +18,10 @@ const File: React.FC = () => {
     useLazyQuery(REPO_FILE);
 
   useEffect(() => {
-    if (!userLoading) {
-      loadBranch({
-        variables: { name: repoName, owner: userData?.viewer.login },
-      });
-    }
-  }, [userLoading, loadBranch, repoName, userData]);
+    loadBranch({
+      variables: { name: repoName, owner: userName },
+    });
+  }, [loadBranch, repoName]);
 
   useEffect(() => {
     if (branchData?.repository?.defaultBranchRef?.name) {
@@ -34,18 +30,18 @@ const File: React.FC = () => {
   }, [branchData, setDefaultBranchName]);
 
   useEffect(() => {
-    if (!userLoading && userData?.viewer.login && repoName && filePath) {
+    if (repoName && filePath) {
       loadFile({
         variables: {
-          owner: userData.viewer.login,
+          owner: userName,
           name: repoName,
           expression: `${defaultBranchName}:${filePath}`,
         },
       });
     }
-  }, [userLoading, loadFile, userData, repoName, filePath, defaultBranchName]);
+  }, [loadFile, repoName, filePath, defaultBranchName]);
 
-  if (userLoading || (called && fileLoading) || mainBranchLoading) {
+  if ((called && fileLoading) || mainBranchLoading) {
     return (
       <div className="common__statements-wrapper">
         <ReactLoading type={'bubbles'} color={'#12C413'} />

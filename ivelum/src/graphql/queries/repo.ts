@@ -58,3 +58,24 @@ export const REPO_MAIN_BRANCH = gql`
     }
   }
 `;
+export const SEARCH_REPOS = gql`
+  query SearchRepos($searchTerm: String!, $after: String) {
+    search(query: $searchTerm, type: REPOSITORY, first: 10, after: $after) {
+      edges {
+        cursor
+        node {
+          ... on Repository {
+            name
+            owner {
+              login
+            }
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`;

@@ -8,6 +8,7 @@ import { Link, Route, Routes } from 'react-router-dom';
 import Folder from './components/folder';
 import File from './components/file';
 import Snowfall from 'react-snowfall';
+import Search from './components/search';
 
 function App() {
   const el = useRef(null);
@@ -39,11 +40,33 @@ function App() {
           <UserInfo />
         </div>
       </header>
-      <div className="App__folders">
+      <div className="App__wrapper">
         <Routes>
-          <Route path="/" element={<Folders />} />
-          <Route path="/:repoName/folder/*" element={<Folder />} />
-          <Route path="/:repoName/file/*" element={<File />} />
+          <Route path="/" element={<Search />} />
+          <Route
+            path="/:userName/:repoName"
+            element={
+              <div className="App__folders">
+                <Folders />
+              </div>
+            }
+          />
+          <Route
+            path="/:userName/:repoName/folder/*"
+            element={
+              <div className="App__folders">
+                <Folder />
+              </div>
+            }
+          />
+          <Route
+            path="/:userName/:repoName/file/*"
+            element={
+              <div className="App__folders">
+                <File />
+              </div>
+            }
+          />
         </Routes>
       </div>
     </div>
